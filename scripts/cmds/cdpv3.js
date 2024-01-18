@@ -1,48 +1,48 @@
-const axios = require("axios");
-const fs = require("fs-extra");
-
+const { getStreamFromURL } = global.utils;
 module.exports = {
- config: {
- name: "cdp3",
- aliases: ["cdp"],
- version: "1.0",
- author: "XyryllPanget",
- countDown: 5,
- role: 0,
- shortDescription: {
- en: "couple dp"
- },
- longDescription: {
- en: "couple dp"
- },
- category: "image",
- guide: {
- en: "{pn}"
- }
- },
+  config: {
+    name: "pair",
+    version: "1.0",
+    author: "Rulex-al LOUFI",
+    shortDescription: {
+      en: "pair with random people 😗",
+      vi: ""
+    },
+    category: "fun",
+    guide: "{prefix}random-female"
+  },
 
- onStart: async function ({ api, event, args }) {
- try {
- const { data } = await axios.get(
- "https://tanjiro-api.onrender.com/cdp?api_key=tanjiro"
- );
- const maleImg = await axios.get(data.male, { responseType: "arraybuffer" });
- fs.writeFileSync(__dirname + "/tmp/img1.png", Buffer.from(maleImg.data, "utf-8"));
- const femaleImg = await axios.get(data.female, { responseType: "arraybuffer" });
- fs.writeFileSync(__dirname + "/tmp/img2.png", Buffer.from(femaleImg.data, "utf-8"));
+  onStart: async function({ event, threadsData, message, usersData }) {
+    const uidI = event.senderID;
+    const avatarUrl1 = await usersData.getAvatarUrl(uidI);
+    const name1 = await usersData.getName(uidI);
+    const threadData = await threadsData.get(event.threadID);
+    const members = threadData.members.filter(member => member.inGroup);
+    const senderGender = threadData.members.find(member => member.userID === uidI)?.gender;
 
- const msg = "「 Here's your pair Dp✨ 」";
- const allImages = [
- fs.createReadStream(__dirname + "/tmp/img1.png"),
- fs.createReadStream(__dirname + "/tmp/img2.png")
- ];
+    if (members.length === 0) return message.reply('There are no members in the group ☹️💕😢');
 
- return api.sendMessage({
- body: msg,
- attachment: allImages
- }, event.threadID, event.messageID);
- } catch (error) {
- console.error(error);
- }
- }
+    const eligibleMembers = members.filter(member => member.gender !== senderGender);
+    if (eligibleMembers.length === 0) return message.reply('There are no male/female members in the group ☹️💕😢');
+
+    const randomIndex = Math.floor(Math.random() * eligibleMembers.length);
+    const randomMember = eligibleMembers[randomIndex];
+    const name2 = await usersData.getName(`${randomMember.userID}`);
+    const avatarUrl2 = await usersData.getAvatarUrl(`${randomMember.userID}`);
+    const randomNumber1 = Math.floor(Math.random() * 36) + 65;
+    const randomNumber2 = Math.floor(Math.random() * 36) + 65;
+
+    message.reply({
+      body: `• Everyone congratulates the new husband and wife:
+        ❤️ ${name1} 💕 ${name2} ❤️
+        Love percentage: "${randomNumber1} % 🤭"
+        Compatibility ratio: "${randomNumber2} % 💕"
+        
+        Congratulations 💝`,
+      attachment: [
+        await getStreamFromURL(`${avatarUrl1}`),
+        await getStreamFromURL(`${avatarUrl2}`)
+      ]
+    });
+  }
 };
