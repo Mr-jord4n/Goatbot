@@ -25,7 +25,7 @@ Hello! It look's like you're not familiar with my prefix!, here's a guide, use t
  ✨ BOX CHAT PREFIX: [+]
 
 
-OWNER: https://www.facebook.com/AlMeydakiAn24`,
+OWNER: https://www.facebook.com/profile.php?id=100012191281263`,
  attachment: await global.utils.getStreamFromURL("https://i.imgur.com/voEHfHB.gif")
  });
  }
